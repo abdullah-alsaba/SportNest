@@ -28,7 +28,7 @@ export const createFacility = async (req, res) => {
 
 export const getFacilities = async (req, res) => {
   try {
-    const { search, sportType } = req.query
+    const { search, sportType, minPrice, maxPrice } = req.query
     const filter = {}
 
     if (search) {
@@ -36,7 +36,14 @@ export const getFacilities = async (req, res) => {
     }
 
     if (sportType) {
-      filter.sportType = sportType
+      const types = sportType.split(',').map((s) => s.trim()).filter(Boolean)
+      filter.sportType = types.length > 1 ? { $in: types } : types[0]
+    }
+
+    if (minPrice || maxPrice) {
+      filter.pricePerHour = {}
+      if (minPrice) filter.pricePerHour.$gte = Number(minPrice)
+      if (maxPrice) filter.pricePerHour.$lte = Number(maxPrice)
     }
 
     const facilities = await Facility.find(filter)

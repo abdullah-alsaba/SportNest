@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 export default function PrivateRoute({ children }) {
   const { user, loading, isAuthenticated } = useAuth()
@@ -15,11 +16,7 @@ export default function PrivateRoute({ children }) {
   }, [loading, isAuthenticated, router])
 
   if (loading) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg text-primary" />
-      </div>
-    )
+    return <LoadingSpinner className="min-h-[50vh]" />
   }
 
   if (!user) {

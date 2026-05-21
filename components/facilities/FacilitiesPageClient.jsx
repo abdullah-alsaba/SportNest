@@ -1,8 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import FacilityCard from '@/components/facilities/FacilityCard'
+import EmptyState from '@/components/ui/EmptyState'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import { getFacilities } from '@/services/facility.service'
+import { getErrorMessage } from '@/utils/getErrorMessage'
 import { mapFacility } from '@/utils/mapData'
 import { SPORT_TYPES } from '@/utils/mockData'
 
@@ -12,35 +16,58 @@ export default function FacilitiesPageClient() {
   const [search, setSearch] = useState('')
   const [selectedSports, setSelectedSports] = useState([])
   const [maxPrice, setMaxPrice] = useState(200)
+  const [sortBy, setSortBy] = useState('rating')
 
   const loadFacilities = useCallback(async () => {
     setLoading(true)
     try {
-      const sportType = selectedSports.length === 1 ? selectedSports[0] : undefined
-      const data = await getFacilities({ search, sportType })
+      const params = { search }
+      if (selectedSports.length > 0) {
+        params.sportType = selectedSports.join(',')
+      }
+      if (maxPrice < 200) {
+        params.maxPrice = maxPrice
+      }
+      const data = await getFacilities(params)
       setFacilities(data.facilities.map(mapFacility))
-    } catch {
+    } catch (error) {
       setFacilities([])
+      toast.error(getErrorMessage(error))
     } finally {
       setLoading(false)
     }
-  }, [search, selectedSports])
+  }, [search, selectedSports, maxPrice])
 
   useEffect(() => {
     const timer = setTimeout(() => {
       loadFacilities()
-    }, 300)
+    }, 350)
     return () => clearTimeout(timer)
   }, [loadFacilities])
 
-  const filtered = useMemo(() => {
-    return facilities.filter((facility) => facility.price <= maxPrice)
-  }, [facilities, maxPrice])
+  const sorted = useMemo(() => {
+    const list = [...facilities]
+    if (sortBy === 'price-low') {
+      return list.sort((a, b) => a.price - b.price)
+    }
+    if (sortBy === 'price-high') {
+      return list.sort((a, b) => b.price - a.price)
+    }
+    return list.sort((a, b) => b.rating - a.rating)
+  }, [facilities, sortBy])
 
   const toggleSport = (sport) => {
     setSelectedSports((prev) =>
       prev.includes(sport) ? prev.filter((s) => s !== sport) : [...prev, sport],
     )
+  }
+
+  const clearFilters = () => {
+    setSearch('')
+    setSelectedSports([])
+    setMaxPrice(200)
+    setSortBy('rating')
+    toast.success('Filters cleared')
   }
 
   return (
@@ -97,7 +124,7 @@ export default function FacilitiesPageClient() {
 
                 <div>
                   <p className="font-semibold text-sm mb-2">
-                    Price Range: $0 – ${maxPrice}+
+                    Price Range: $0 – ${maxPrice}
                   </p>
                   <input
                     type="range"
@@ -109,13 +136,22 @@ export default function FacilitiesPageClient() {
                   />
                 </div>
 
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm w-full mt-2"
-                  onClick={loadFacilities}
-                >
-                  Apply Filters
-                </button>
+                <div className="flex flex-col gap-2 mt-2">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm w-full"
+                    onClick={loadFacilities}
+                  >
+                    Apply Filters
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm w-full"
+                    onClick={clearFilters}
+                  >
+                    Clear Filters
+                  </button>
+                </div>
               </div>
             </div>
           </aside>
@@ -124,27 +160,35 @@ export default function FacilitiesPageClient() {
             <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
               <p className="text-base-content/70">
                 Showing{' '}
-                <span className="font-semibold text-secondary">{filtered.length}</span>{' '}
+                <span className="font-semibold text-secondary">{sorted.length}</span>{' '}
                 facilities available
               </p>
+              <select
+                className="select select-bordered select-sm"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="rating">Sort by: Highest Rated</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
             </div>
 
             {loading ? (
-              <div className="flex justify-center py-20">
-                <span className="loading loading-spinner loading-lg text-primary" />
-              </div>
-            ) : (
+              <LoadingSpinner />
+            ) : sorted.length > 0 ? (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filtered.map((facility) => (
+                {sorted.map((facility) => (
                   <FacilityCard key={facility.id} facility={facility} />
                 ))}
               </div>
-            )}
-
-            {!loading && filtered.length === 0 && (
-              <div className="text-center py-16 text-base-content/60">
-                No facilities match your filters.
-              </div>
+            ) : (
+              <EmptyState
+                title="No facilities found"
+                message="Try changing your search or filter options."
+                actionLabel="Clear Filters"
+                actionHref="/facilities"
+              />
             )}
           </div>
         </div>

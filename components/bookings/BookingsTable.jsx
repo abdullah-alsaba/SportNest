@@ -5,6 +5,8 @@ import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
 import { cancelBooking, getMyBookings } from '@/services/booking.service'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import EmptyState from '@/components/ui/EmptyState'
 import { formatDate } from '@/utils/mapData'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
@@ -24,8 +26,9 @@ export default function BookingsTable() {
     try {
       const data = await getMyBookings()
       setBookings(data.bookings)
-    } catch {
+    } catch (error) {
       setBookings([])
+      toast.error(getErrorMessage(error))
     } finally {
       setLoading(false)
     }
@@ -58,9 +61,14 @@ export default function BookingsTable() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <span className="loading loading-spinner loading-lg text-primary" />
-          </div>
+          <LoadingSpinner />
+        ) : bookings.length === 0 ? (
+          <EmptyState
+            title="No bookings yet"
+            message="Book a facility to see your schedule here."
+            actionLabel="Browse Facilities"
+            actionHref="/facilities"
+          />
         ) : (
           <div className="overflow-x-auto rounded-xl border border-base-300 shadow-md bg-base-100">
             <table className="table">
@@ -130,9 +138,6 @@ export default function BookingsTable() {
                 })}
               </tbody>
             </table>
-            {bookings.length === 0 && (
-              <p className="text-center py-10 text-base-content/60">No bookings yet</p>
-            )}
           </div>
         )}
       </div>

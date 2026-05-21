@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { deleteFacility, getMyFacilities } from '@/services/facility.service'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import EmptyState from '@/components/ui/EmptyState'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const sportBadge = {
@@ -24,8 +26,9 @@ export default function ManageFacilitiesView() {
     try {
       const data = await getMyFacilities()
       setFacilities(data.facilities)
-    } catch {
+    } catch (error) {
       setFacilities([])
+      toast.error(getErrorMessage(error))
     } finally {
       setLoading(false)
     }
@@ -87,9 +90,14 @@ export default function ManageFacilitiesView() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <span className="loading loading-spinner loading-lg text-primary" />
-          </div>
+          <LoadingSpinner />
+        ) : facilities.length === 0 ? (
+          <EmptyState
+            title="No facilities yet"
+            message="Add your first sports venue to start managing bookings."
+            actionLabel="Add Facility"
+            actionHref="/add-facility"
+          />
         ) : (
           <div className="overflow-x-auto rounded-xl border border-base-300 shadow-md bg-base-100">
             <table className="table">
@@ -146,9 +154,6 @@ export default function ManageFacilitiesView() {
                 ))}
               </tbody>
             </table>
-            {facilities.length === 0 && (
-              <p className="text-center py-10 text-base-content/60">No facilities added yet</p>
-            )}
           </div>
         )}
       </div>

@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import { getFacilities } from '@/services/facility.service'
+import { getErrorMessage } from '@/utils/getErrorMessage'
 import { mapFacility } from '@/utils/mapData'
 
 export default function FeaturedFacilities() {
@@ -15,8 +18,9 @@ export default function FeaturedFacilities() {
       try {
         const data = await getFacilities()
         setFacilities(data.facilities.map(mapFacility).slice(0, 6))
-      } catch {
+      } catch (error) {
         setFacilities([])
+        toast.error(getErrorMessage(error))
       } finally {
         setLoading(false)
       }
@@ -40,9 +44,7 @@ export default function FeaturedFacilities() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <span className="loading loading-spinner loading-lg text-primary" />
-          </div>
+          <LoadingSpinner className="py-12" />
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {facilities.map((facility) => (
