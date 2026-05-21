@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
+import authRoutes from './routes/auth.routes.js'
 
 dotenv.config()
 
@@ -27,6 +28,8 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'SportNest API is running' })
 })
+
+app.use('/api/auth', authRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
