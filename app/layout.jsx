@@ -10,8 +10,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="sportnest">
-      <body className="min-h-screen bg-base-100 antialiased">
+    <html lang="en" data-theme="sportnest" suppressHydrationWarning>
+      <body
+        className="min-h-screen bg-base-100 antialiased"
+        suppressHydrationWarning
+      >
         <AuthProvider>
           <ToasterProvider />
           {children}
