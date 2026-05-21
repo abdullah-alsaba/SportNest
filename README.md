@@ -1,33 +1,60 @@
-# SportNest – Sports Facility Booking System
+# SportNest
 
-MERN-style stack: **Next.js (App Router)** frontend + **Express** backend + **MongoDB**.
+Sports Facility Booking System — assignment submission layout.
 
-## Frontend setup (Step 1)
+## Folder structure
+
+```
+SportsNest/
+├── client/     → Next.js frontend (separate GitHub repo)
+└── server/     → Express + MongoDB API (separate GitHub repo)
+```
+
+## What to submit
+
+| Item | Folder |
+|------|--------|
+| Client-side GitHub Repository | `client/` |
+| Server-side GitHub Repository | `server/` |
+| Live Website Link | Deploy `client/` (frontend URL) |
+
+## Local development
+
+**Terminal 1 — Server**
 
 ```bash
+cd server
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+**Terminal 2 — Client**
 
-## Project structure
-
-```
-app/              → Pages & routes (App Router)
-components/       → Reusable UI
-layouts/          → Shared layouts (Step 2)
-services/         → Axios API client
-hooks/            → Custom React hooks
-utils/            → Constants & helpers
+```bash
+cd client
+npm install
+npm run dev
 ```
 
-## Scripts
+- Frontend: http://localhost:3000
+- API: http://localhost:5000
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run start` | Run production server |
+## Separate GitHub repositories
 
-Backend (`server/`) will be added in Step 4.
+```bash
+cd client
+git init
+git add .
+git commit -m "initial commit: SportNest client"
+git remote add origin YOUR_CLIENT_REPO_URL
+git push -u origin main
+
+cd ../server
+git init
+git add .
+git commit -m "initial commit: SportNest server"
+git remote add origin YOUR_SERVER_REPO_URL
+git push -u origin main
+```
+
+Do not commit `.env` files. Use `.env.example` as reference.
