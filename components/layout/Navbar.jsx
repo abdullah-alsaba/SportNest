@@ -1,13 +1,19 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { APP_NAME, NAV_LINKS } from '@/utils/constants'
 
 export default function Navbar({ transparent = false }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/login')
+  }
 
   const publicLinks = NAV_LINKS.filter((link) => !link.private)
   const visibleLinks = isAuthenticated
@@ -118,7 +124,7 @@ export default function Navbar({ transparent = false }) {
                   <Link href="/my-bookings">My Bookings</Link>
                 </li>
                 <li>
-                  <button type="button" onClick={logout}>
+                  <button type="button" onClick={handleLogout}>
                     Logout
                   </button>
                 </li>

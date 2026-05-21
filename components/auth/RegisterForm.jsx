@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
+import { registerUser } from '@/services/auth.service'
 import GoogleButton from '@/components/auth/GoogleButton'
+import { getErrorMessage } from '@/utils/getErrorMessage'
 import {
   validateName,
   validateEmail,
@@ -52,16 +54,16 @@ export default function RegisterForm() {
 
     setSubmitting(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600))
-      login({
+      const data = await registerUser({
         name: form.name.trim(),
         email: form.email.trim(),
-        role: 'user',
+        password: form.password,
       })
+      login(data.user)
       toast.success('Account created successfully')
       router.push('/facilities')
-    } catch {
-      toast.error('Registration failed. Try again.')
+    } catch (error) {
+      toast.error(getErrorMessage(error))
     } finally {
       setSubmitting(false)
     }

@@ -6,6 +6,10 @@ import { APP_NAME, APP_DESCRIPTION } from '@/utils/constants'
 export const metadata = {
   title: `${APP_NAME} | Sports Facility Booking`,
   description: APP_DESCRIPTION,
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }) {

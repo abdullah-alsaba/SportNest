@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import BookingPanel from '@/components/facilities/BookingPanel'
 
 const AMENITIES = [
   { label: 'Parking', icon: 'P' },
@@ -106,60 +106,11 @@ export default function FacilityDetailsView({ facility }) {
           </div>
 
           <aside>
-            <div className="card bg-base-100 shadow-lg border border-base-300 sticky top-24">
-              <div className="card-body">
-                <h3 className="card-title text-secondary">Book Facility</h3>
-                <fieldset className="fieldset">
-                  <label className="label">Facility Name</label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={facility.name}
-                    readOnly
-                  />
-                </fieldset>
-                <fieldset className="fieldset">
-                  <label className="label">Date</label>
-                  <input type="date" className="input input-bordered w-full" />
-                </fieldset>
-                <fieldset className="fieldset">
-                  <label className="label">Starting Time</label>
-                  <select className="select select-bordered w-full">
-                    <option>10:00 - 11:00</option>
-                    <option>18:00 - 20:00</option>
-                  </select>
-                </fieldset>
-                <fieldset className="fieldset">
-                  <label className="label">Duration (Hours)</label>
-                  <div className="join w-full">
-                    <button type="button" className="btn join-item">−</button>
-                    <input
-                      type="text"
-                      className="input input-bordered join-item w-full text-center"
-                      defaultValue="2"
-                      readOnly
-                    />
-                    <button type="button" className="btn join-item">+</button>
-                  </div>
-                </fieldset>
-                <div className="divider my-1" />
-                <div className="flex justify-between text-sm">
-                  <span>${facility.price}.00 × 2 hrs</span>
-                  <span>${facility.price * 2}.00</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Service Fee</span>
-                  <span>$5.00</span>
-                </div>
-                <div className="flex justify-between font-bold text-lg mt-2">
-                  <span>Total Price</span>
-                  <span className="text-primary">${facility.price * 2 + 5}.00</span>
-                </div>
-                <Link href="/login" className="btn btn-primary w-full mt-4">
-                  Proceed to Booking
-                </Link>
-              </div>
-            </div>
+            <BookingPanel
+              facilityId={facility.id}
+              facilityName={facility.name}
+              price={facility.price}
+            />
           </aside>
         </div>
       </div>

@@ -1,14 +1,53 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MANAGE_FACILITIES } from '@/utils/mockData'
+import toast from 'react-hot-toast'
+import { deleteFacility, getMyFacilities } from '@/services/facility.service'
+import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const sportBadge = {
   Tennis: 'badge-info',
   Basketball: 'badge-warning',
   Football: 'badge-success',
+  Swimming: 'badge-primary',
+  Badminton: 'badge-secondary',
 }
 
 export default function ManageFacilitiesView() {
+  const [facilities, setFacilities] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const loadFacilities = async () => {
+    setLoading(true)
+    try {
+      const data = await getMyFacilities()
+      setFacilities(data.facilities)
+    } catch {
+      setFacilities([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadFacilities()
+  }, [])
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this facility?')) return
+    try {
+      await deleteFacility(id)
+      toast.success('Facility deleted')
+      loadFacilities()
+    } catch (error) {
+      toast.error(getErrorMessage(error))
+    }
+  }
+
+  const totalBookings = facilities.reduce((sum, f) => sum + (f.bookingsCount || 0), 0)
+
   return (
     <div className="bg-base-200 min-h-screen py-10">
       <div className="container mx-auto px-4">
@@ -34,95 +73,84 @@ export default function ManageFacilitiesView() {
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <div className="stat bg-base-100 rounded-xl shadow-sm border border-base-300">
             <div className="stat-title">Total Venues</div>
-            <div className="stat-value text-secondary text-3xl">12</div>
+            <div className="stat-value text-secondary text-3xl">{facilities.length}</div>
             <div className="stat-desc">Facilities</div>
           </div>
           <div className="stat bg-base-100 rounded-xl shadow-sm border border-base-300">
-            <div className="stat-title">Avg. Bookings</div>
-            <div className="stat-value text-secondary text-3xl">84%</div>
+            <div className="stat-title">Total Bookings</div>
+            <div className="stat-value text-secondary text-3xl">{totalBookings}</div>
           </div>
           <div className="stat bg-base-100 rounded-xl shadow-sm border border-base-300">
-            <div className="stat-title">Monthly Revenue</div>
-            <div className="stat-value text-primary text-3xl">$12,450</div>
+            <div className="stat-title">Active Listings</div>
+            <div className="stat-value text-primary text-3xl">{facilities.length}</div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-base-300 shadow-md bg-base-100">
-          <table className="table">
-            <thead className="bg-secondary text-secondary-content">
-              <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Location</th>
-                <th>Price/hr</th>
-                <th>Bookings</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MANAGE_FACILITIES.map((facility) => (
-                <tr key={facility.id} className="hover:bg-base-200/50">
-                  <td>
-                    <div className="relative w-12 h-12 rounded overflow-hidden">
-                      <Image
-                        src={facility.image}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="48px"
-                      />
-                    </div>
-                  </td>
-                  <td className="font-semibold text-secondary">{facility.name}</td>
-                  <td>
-                    <span className={`badge ${sportBadge[facility.sport] || 'badge-neutral'}`}>
-                      {facility.sport}
-                    </span>
-                  </td>
-                  <td className="text-sm">{facility.location}</td>
-                  <td>${facility.price}.00</td>
-                  <td className="text-primary font-semibold">{facility.bookings}</td>
-                  <td>
-                    <div className="flex gap-2">
-                      <button type="button" className="btn btn-ghost btn-xs" aria-label="Edit">
-                        ✏️
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-xs text-error"
-                        aria-label="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <span className="loading loading-spinner loading-lg text-primary" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-base-300 shadow-md bg-base-100">
+            <table className="table">
+              <thead className="bg-secondary text-secondary-content">
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Price/hr</th>
+                  <th>Bookings</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex flex-wrap justify-between items-center mt-6 gap-4 text-sm text-base-content/70">
-          <p>Showing 3 of 12 facilities</p>
-          <div className="join">
-            <button type="button" className="join-item btn btn-sm">
-              Previous
-            </button>
-            <button type="button" className="join-item btn btn-sm btn-active">
-              1
-            </button>
-            <button type="button" className="join-item btn btn-sm">
-              2
-            </button>
-            <button type="button" className="join-item btn btn-sm">
-              3
-            </button>
-            <button type="button" className="join-item btn btn-sm">
-              Next
-            </button>
+              </thead>
+              <tbody>
+                {facilities.map((facility) => (
+                  <tr key={facility._id} className="hover:bg-base-200/50">
+                    <td>
+                      <div className="relative w-12 h-12 rounded overflow-hidden">
+                        <Image
+                          src={facility.image}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      </div>
+                    </td>
+                    <td className="font-semibold text-secondary">{facility.name}</td>
+                    <td>
+                      <span
+                        className={`badge ${sportBadge[facility.sportType] || 'badge-neutral'}`}
+                      >
+                        {facility.sportType}
+                      </span>
+                    </td>
+                    <td className="text-sm">{facility.location}</td>
+                    <td>${facility.pricePerHour}.00</td>
+                    <td className="text-primary font-semibold">
+                      {facility.bookingsCount || 0}
+                    </td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-xs text-error"
+                          onClick={() => handleDelete(facility._id)}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {facilities.length === 0 && (
+              <p className="text-center py-10 text-base-content/60">No facilities added yet</p>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

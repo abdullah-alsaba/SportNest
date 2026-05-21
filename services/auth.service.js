@@ -10,6 +10,12 @@ export async function registerUser({ name, email, password }) {
   return data
 }
 
-export async function loginWithGoogle() {
-  throw new Error('Google login is not configured yet')
+export async function getMe() {
+  const { data } = await api.get('/auth/me')
+  return data
+}
+
+export async function logoutUser() {
+  const { data } = await api.post('/auth/logout')
+  return data
 }

@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
+import { loginUser } from '@/services/auth.service'
 import GoogleButton from '@/components/auth/GoogleButton'
+import { getErrorMessage } from '@/utils/getErrorMessage'
 import { validateEmail, validatePassword } from '@/utils/validators'
 
 export default function LoginForm() {
@@ -40,16 +42,15 @@ export default function LoginForm() {
 
     setSubmitting(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600))
-      login({
-        name: form.email.split('@')[0],
+      const data = await loginUser({
         email: form.email.trim(),
-        role: 'user',
+        password: form.password,
       })
+      login(data.user)
       toast.success('Welcome back! Login successful.')
       router.push('/my-bookings')
-    } catch {
-      toast.error('Login failed. Please check your credentials.')
+    } catch (error) {
+      toast.error(getErrorMessage(error))
     } finally {
       setSubmitting(false)
     }

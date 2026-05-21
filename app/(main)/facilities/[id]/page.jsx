@@ -1,22 +1,10 @@
-import FacilityDetailsView from '@/components/facilities/FacilityDetailsView'
-import { getFacilityById } from '@/utils/mockData'
-import { notFound } from 'next/navigation'
+import FacilityDetailsClient from '@/components/facilities/FacilityDetailsClient'
 
-export async function generateMetadata({ params }) {
-  const { id } = await params
-  const facility = getFacilityById(id)
-  return {
-    title: `${facility.name} | SportNest`,
-  }
+export const metadata = {
+  title: 'Facility Details | SportNest',
 }
 
 export default async function FacilityDetailsPage({ params }) {
   const { id } = await params
-  const facility = getFacilityById(id)
-
-  if (!facility) {
-    notFound()
-  }
-
-  return <FacilityDetailsView facility={facility} />
+  return <FacilityDetailsClient id={id} />
 }
