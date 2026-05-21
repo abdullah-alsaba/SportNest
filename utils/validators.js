@@ -12,3 +12,15 @@ export function validatePassword(password, minLength = 6) {
   }
   return ''
 }
+
+export function validateName(name) {
+  if (!name?.trim()) return 'Name is required'
+  if (name.trim().length < 2) return 'Name must be at least 2 characters'
+  return ''
+}
+
+export function validateConfirmPassword(password, confirmPassword) {
+  if (!confirmPassword) return 'Confirm your password'
+  if (password !== confirmPassword) return 'Passwords do not match'
+  return ''
+}
